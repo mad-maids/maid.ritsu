@@ -1,0 +1,13 @@
+[Unit]
+Description=Car Parking Bot
+After=network.target
+
+[Service]
+User=uwussimo
+Type=simple
+WorkingDirectory=/opt/ritsu
+ExecStart=/opt/ritsu/venv/bin/python main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

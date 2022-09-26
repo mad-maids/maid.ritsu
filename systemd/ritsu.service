@@ -1,0 +1,14 @@
+[Unit]
+Description=Car Parking Telegram bot
+After=network.target
+
+[Service]
+User=maids
+Group=maids
+Type=simple
+WorkingDirectory=/opt/ritsu
+ExecStart=/opt/ritsu/venv/bin/python bot.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

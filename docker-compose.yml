@@ -1,0 +1,54 @@
+version: '3.3'
+
+services:
+  db:
+    container_name: "${DB_CONTAINER_NAME}"
+
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASS}"
+
+    restart:
+      always
+
+    networks:
+      - botnet
+    volumes:
+        - ./postgres:/var/lib/postgresql
+
+  redis_cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass "${REDIS_PASSWORD}"
+    env_file:
+      - ".env"
+    volumes:
+      - ./cache:/data
+    networks:
+      - botnet
+
+  bot:
+    container_name: "${BOT_CONTAINER_NAME}"
+    build:
+      context: .
+    command: python bot.py
+    networks:
+      - botnet
+    restart: always
+    env_file:
+      - ".env"
+    volumes:
+      - .:/src
+    depends_on:
+        - db
+        - redis_cache
+
+networks:
+  botnet:
+    driver: bridge
