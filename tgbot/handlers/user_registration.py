@@ -85,15 +85,20 @@ async def tools(msg: Message):
     await Menu.in_main_menu.set()
 
 
+async def user_not_in_db(msg: Message):
+    await msg.answer("🟡Please, register first!\nUse /register")
+
+
 async def user_restart(msg: Message, state=FSMContext):
     await state.finish()
     await msg.answer('🟢Everything was restarted🔄')
 
 
 def user_registration_handlers(dp: Dispatcher):
-    dp.register_message_handler(user_start, commands=["start"], in_db=False)
+    dp.register_message_handler(user_start, commands=["start", "register"], in_db=False)
     dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
-    dp.register_message_handler(tools, commands='tools')
+    dp.register_message_handler(tools, commands='tools', in_db=True)
+    dp.register_message_handler(user_not_in_db, commands='tools', in_db=False)
 
     dp.register_message_handler(register_car_number, IsValidCar(True), state=RegisterUser.insert_car_number,
                                 car_in_db=False)

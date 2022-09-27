@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, insert, select, update, SmallInteger, and_
+from sqlalchemy import Column, BigInteger, String, insert, select, update, SmallInteger, and_, delete
 from sqlalchemy.orm import sessionmaker
 
 from tgbot.services.db_base import Base
@@ -39,4 +39,10 @@ class Student(Base):
             await db_session.commit()
             return result
 
-
+    @classmethod
+    async def remove_student(cls, session_maker: sessionmaker, tg_id: int):
+        async with session_maker() as db_session:
+            sql = delete(Student).where(Student.tg_id == tg_id)
+            request = await db_session.execute(sql)
+            await db_session.commit()
+            return request

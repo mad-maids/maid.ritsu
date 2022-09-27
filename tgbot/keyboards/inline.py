@@ -20,20 +20,24 @@ def found_driver_keyboard(car_number: str):
 
 
 def separate_car_inline_keyboard(car_number: str):
-    return InlineKeyboardMarkup(row_width=1, inline_keyboard=[[
-        InlineKeyboardButton(text="✏Edit this car", callback_data=car_callback.new(method="edit", number=car_number),),
-        InlineKeyboardButton(text="🗑Delete this car", callback_data=car_callback.new(method="delete", number=car_number))
-    ]])
+    temp_inline_keyboard = InlineKeyboardMarkup(row_width=1)
+    temp_inline_keyboard.add(
+        InlineKeyboardButton(text='👁Hide', callback_data=car_callback.new(method="hide", number=car_number)),
+        InlineKeyboardButton(text="🗑Delete this car",
+                             callback_data=car_callback.new(method="delete", number=car_number)))
+    return temp_inline_keyboard
 
 
 main_menu_keyboard = InlineKeyboardMarkup(
-    inline_keyboard=[[InlineKeyboardButton(text="Settings⚙️", callback_data="settings")],
+    inline_keyboard=[
+                     [InlineKeyboardButton(text="Settings⚙️", callback_data="settings")],
                      [InlineKeyboardButton(text="About us™️", callback_data="about"),
-                      InlineKeyboardButton(text="Feedback🛎", callback_data="feedback")]],
+                      InlineKeyboardButton(text="Feedback🛎", callback_data="feedback")],
+                     [InlineKeyboardButton(text='👁Hide', callback_data='hide_menu')]],
     resize_keyboard=True)
 
-
 settings_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Delete my data🗑', callback_data='delete_me')],
     [InlineKeyboardButton(text="🚗Cars", callback_data="my_cars"),
      InlineKeyboardButton(text="📞Contacts", callback_data="my_phone")],
     [InlineKeyboardButton(text="🔙Back", callback_data="back_to_menu")]],
@@ -42,9 +46,15 @@ settings_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 about_us_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="🔙Back", callback_data="back_to_menu")]],
     resize_keyboard=True
- )
+)
 
 feedback_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="🏁Finish", callback_data="back_to_menu")]],
     resize_keyboard=True
 )
+
+
+confirm_delete_kb = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='🗑Yes, I want to clear my data', callback_data='positive_delete')],
+    [InlineKeyboardButton(text='🔙Back', callback_data='negative_delete')]
+])

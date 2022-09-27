@@ -10,10 +10,9 @@ from tgbot.models.cars import Car
 
 async def feedback_discussion(msg: Message):
     config: Config = msg.bot.get("config")
-
     await msg.bot.send_message(
         config.tg_bot.admins_group[0],
-        "".join([f"<b>From user:\n <a href='tg://user?id={msg.from_user.id}'>{msg.from_user.first_name}</a></b>\n\n",
+        "".join([f"<b>From user: <a href='tg://user?id={msg.from_user.id}'>{msg.from_user.first_name}</a></b>\n\n",
                  f"<i>{msg.text}</i>"],
                 ))
 

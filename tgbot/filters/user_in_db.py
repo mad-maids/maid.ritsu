@@ -3,8 +3,6 @@ import typing
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
 from sqlalchemy.orm import sessionmaker
-
-from tgbot.models.cars import Car
 from tgbot.models.students import Student
 
 
@@ -34,6 +32,3 @@ class UserInDB(BoundFilter):
                 return data
             elif self.in_db is False:
                 return False
-
-
-
