@@ -13,6 +13,7 @@ flexible architecture, so you can enhance easily**
 This bot exists thankfully for those who contributed this project, and they
 are:
 - [Bobomurod (Creator, Maintainer)](https://github.com/muminovbob)
+- [Azizbek (Creator, Maintainer)](https://github.com/Azizbek-B)
 - [UwUssimo (Core Contributor)](https://github.com/uwussimo)
 
 ## Hosting
