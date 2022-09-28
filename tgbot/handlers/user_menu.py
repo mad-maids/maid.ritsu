@@ -4,10 +4,12 @@ from aiogram.dispatcher import FSMContext
 
 from tgbot.keyboards.inline import settings_keyboard, feedback_keyboard, about_us_keyboard, main_menu_keyboard
 from tgbot.misc.states import Menu
+from tgbot.models.cars import Car
+from tgbot.handlers.user_registration import tools
 
 
 async def settings(call: CallbackQuery):
-
+    await call.answer()
     await call.message.edit_text(
         "".join(["<b> In this section, you can manage</b>"
                  "<b> information that related to you.</b>"]))
@@ -40,16 +42,20 @@ async def about_us(call: CallbackQuery):
 
 
 async def exit_to_menu(call: CallbackQuery):
-    await call.message.answer(text=f"🛠<b>  TOOLS  </b>",
-                              reply_markup=main_menu_keyboard)
     await call.message.delete()
+    cars = await Car.get_all_by_tg(call.bot.get("db"), call.from_user.id)
+    car = []
+    for r in cars:
+        car.append(r.car_number)
+    await call.message.answer(f"👤𝐍𝐚𝐦𝐞: <b>{call.from_user.first_name}</b>\n"
+                              f"🚙𝐂𝐚𝐫(𝐬): <code>{' '.join(car)}</code>",
+                              reply_markup=main_menu_keyboard)
     await Menu.in_main_menu.set()
 
 
 async def finish(msg: Message):
-    await msg.answer(text="🛠<b>  TOOLS  </b>", reply_markup=main_menu_keyboard)
     await msg.delete()
-    await Menu.in_main_menu.set()
+    await tools(msg)
 
 
 async def close_menu(call: CallbackQuery, state=FSMContext):

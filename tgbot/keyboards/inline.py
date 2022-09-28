@@ -37,10 +37,10 @@ main_menu_keyboard = InlineKeyboardMarkup(
     resize_keyboard=True)
 
 settings_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="🚗Cars", callback_data="my_cars"),
-     InlineKeyboardButton(text="📞Contacts", callback_data="my_phone")],
-    [InlineKeyboardButton(text='🗑Delete everything', callback_data='delete_me')],
-    [InlineKeyboardButton(text="🔙Back", callback_data="back_to_menu")]],
+    [InlineKeyboardButton(text="🚗Cars", callback_data="my_cars")],
+    [InlineKeyboardButton(text="📞Contacts", callback_data="my_phone")],
+    [InlineKeyboardButton(text="🔙Back", callback_data="back_to_menu"),
+     InlineKeyboardButton(text='🗑Delete everything', callback_data='delete_me')]],
     resize_keyboard=True)
 
 about_us_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -69,4 +69,8 @@ main_phone_inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 delete_number_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='👁Hide', callback_data='hide_number')],
     [InlineKeyboardButton(text="🗑Delete", callback_data='delete_number')]
+])
+
+back_inline_car = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='🔙Back', callback_data='to_settings')]
 ])
