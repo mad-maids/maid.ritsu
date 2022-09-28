@@ -12,9 +12,11 @@ car_callback = CallbackData("car", "method", "number")
 
 def found_driver_keyboard(car_number: str):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Start chatting",
+        [InlineKeyboardButton(text='🔔Notify them',
+                              callback_data=car_callback.new(method="notify", number=car_number))],
+        [InlineKeyboardButton(text="💬Start chatting",
                               callback_data=car_callback.new(method="enter_room", number=car_number)),
-         InlineKeyboardButton(text="Cancel",
+         InlineKeyboardButton(text="◀Cancel",
                               callback_data="cancel_chatting")]])
     return keyboard
 

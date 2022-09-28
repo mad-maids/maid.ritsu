@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from tgbot.filters.car_number_validator import IsValidCar
 from tgbot.keyboards.inline import main_menu_keyboard
+from tgbot.keyboards.inline import back_inline_car
 from tgbot.misc.states import RegisterUser, Menu
 from tgbot.models.cars import Car
 from tgbot.models.students import Student
@@ -18,12 +19,6 @@ async def user_start(msg: Message):
                  f"<i>(Example: <b>01M777BA</b>)</i>"
     await msg.answer(hello_text)
     await RegisterUser.insert_car_number.set()
-
-
-async def start_search(msg: Message):
-    await Menu.search_number.set()
-    await msg.answer('👮‍♂Alright, please <b>send the number of the car</b>\nthat prevents you from leaving the '
-                     'parking lot')
 
 
 async def register_car_number(msg: Message, state=FSMContext):
@@ -72,7 +67,6 @@ def user_registration_handlers(dp: Dispatcher):
     dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
     dp.register_message_handler(tools, commands=['me', 'profile'], in_db=True, is_user_valid=True)
     dp.register_message_handler(user_not_in_db, commands=['me', 'profile', 'search'], in_db=False)
-    dp.register_message_handler(start_search, commands='search', in_db=True)
 
     dp.register_message_handler(register_car_number, IsValidCar(True), state=RegisterUser.insert_car_number,
                                 car_in_db=False)
@@ -81,4 +75,7 @@ def user_registration_handlers(dp: Dispatcher):
                                 state=RegisterUser.insert_car_number, car_in_db=True)
     # error handler Note: it also handles msgs from other modules
     dp.register_message_handler(error_write_correct,
-                                state=[RegisterUser.insert_car_number, Menu.add_car, RegisterUser.insert_phone_number])
+                                state=[RegisterUser.insert_car_number,
+                                       Menu.add_car,
+                                       RegisterUser.insert_phone_number,
+                                       Menu.search_number])

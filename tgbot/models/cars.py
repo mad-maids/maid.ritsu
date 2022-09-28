@@ -87,3 +87,13 @@ class Car(Base):
             request = await db_session.execute(sql)
             await db_session.commit()
             return request
+
+    @classmethod
+    async def get_owner_by_car(cls, session_maker: sessionmaker,
+                               car_number: str, status: int = 1):
+        async with session_maker() as db_session:
+            sql = select(cls.owner).where(and_(cls.car_number == car_number, cls.status == status))
+            request = await db_session.execute(sql)
+            owner_id: cls = request.scalar()
+            await db_session.commit()
+            return owner_id

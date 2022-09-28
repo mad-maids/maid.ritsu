@@ -87,7 +87,7 @@ async def check_number(call: CallbackQuery):
 async def delete_number(call: CallbackQuery):
     session_maker: sessionmaker = call.bot.get("db")
     await Student.remove_number(session_maker, call.from_user.id)
-    await call.answer('🟢Number was deleted successfully')
+    await call.answer('🟢Number was deleted successfully', show_alert=True)
     await hide_sub_menu(call)
 
 
