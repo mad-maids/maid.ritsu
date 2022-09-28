@@ -19,8 +19,6 @@ class CarInDB(BoundFilter):
         session_maker = obj.bot.get('db')
 
         car_number: types.Message.text = obj.text
-
-        print(car_number)
         car = await Car.get_car(session_maker, car_number)
 
         data = dict(car=car)

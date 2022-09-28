@@ -37,9 +37,9 @@ main_menu_keyboard = InlineKeyboardMarkup(
     resize_keyboard=True)
 
 settings_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Delete my data🗑', callback_data='delete_me')],
     [InlineKeyboardButton(text="🚗Cars", callback_data="my_cars"),
      InlineKeyboardButton(text="📞Contacts", callback_data="my_phone")],
+    [InlineKeyboardButton(text='🗑Delete everything', callback_data='delete_me')],
     [InlineKeyboardButton(text="🔙Back", callback_data="back_to_menu")]],
     resize_keyboard=True)
 
@@ -57,4 +57,16 @@ feedback_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 confirm_delete_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🗑Yes, I want to clear my data', callback_data='positive_delete')],
     [InlineKeyboardButton(text='🔙Back', callback_data='negative_delete')]
+])
+
+
+main_phone_inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="📞My number", callback_data='check_my_number')],
+    [InlineKeyboardButton(text="➕Set a number", callback_data="add_number")],
+    [InlineKeyboardButton(text="🔙Back", callback_data="close_phone")]
+])
+
+delete_number_kb = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='👁Hide', callback_data='hide_number')],
+    [InlineKeyboardButton(text="🗑Delete", callback_data='delete_number')]
 ])
