@@ -60,7 +60,6 @@ def user_registration_handlers(dp: Dispatcher):
     dp.register_message_handler(user_start, commands=["start", "register"], in_db=False)
     dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
     dp.register_message_handler(tools, commands='tools', in_db=True, is_user_valid=True)
-    dp.register_message_handler(user_banned, commands='tools', is_user_valid=False)
     dp.register_message_handler(user_not_in_db, commands='tools', in_db=False)
 
     dp.register_message_handler(register_car_number, IsValidCar(True), state=RegisterUser.insert_car_number,
