@@ -1,13 +1,16 @@
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, InlineQueryResultArticle, InlineQuery, InputTextMessageContent, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 
 from tgbot.config import Config
-from tgbot.keyboards.inline import found_driver_keyboard, car_callback, main_menu_keyboard
+from tgbot.keyboards.inline import found_driver_keyboard, car_callback
 from tgbot.misc.states import Menu
 from tgbot.models.cars import Car
 
+from tgbot.keyboards.inline import feedback_keyboard
 
+
+# ============= FEEDBACK =====================
 async def feedback_discussion(msg: Message):
     config: Config = msg.bot.get("config")
     await msg.bot.send_message(
@@ -17,35 +20,26 @@ async def feedback_discussion(msg: Message):
                 ))
 
 
-async def search_owner(query: InlineQuery, cars: [Car]):
-    car_numbers = []
-
+# ============= SEARCH =====================
+async def search_owner(msg: Message, cars: [Car]):
     for car in cars:
-        car_numbers.append(InlineQueryResultArticle(
-            id=f"{car.car_number}",
-            title=f"{car.car_number}",
-            reply_markup=found_driver_keyboard(car.car_number),
-            input_message_content=InputTextMessageContent(
-                message_text=f"<b>{car.car_number}</b>",
-            )))
-
-    await query.answer(
-        results=car_numbers,
-        cache_time=2)
+        await msg.answer(car.car_number, reply_markup=found_driver_keyboard(car.car_number))
 
 
-async def cancel_chatting(call: CallbackQuery):
+# ============= CHAT =====================
+async def cancel_chatting(call: CallbackQuery, state=FSMContext):
     await call.answer()
-    await call.message.answer("main menu", reply_markup=main_menu_keyboard)
-    await Menu.in_main_menu.set()
+    await call.message.answer('💬The dialogue was finished')
+    await call.message.delete()
+    await state.finish()
 
 
 async def start_chatting(call: CallbackQuery, callback_data: dict, state: FSMContext):
     car_number = callback_data.get("number")
-    await call.bot.send_message(call.from_user.id,
-                                "<b>You can write now, all messages will be delivered to the car owner.</b>\n write "
-                                "/finish to end a chat",
-                                )
+
+    await call.message.edit_text(f"🟢<b>The dialogue has begun</b>💬\n"
+                                 f"<i>You can write messages and they will be\nsent to the owner of the car</i>")
+    await call.message.edit_reply_markup(feedback_keyboard)
     car_owner = await Car.get_car(call.bot.get("db"), car_number)
 
     await state.storage.set_state(chat=car_owner.owner, user=car_owner.owner, state=Menu.start_chat.state)
@@ -63,22 +57,36 @@ async def send_message(msg: Message, state: FSMContext):
     partner_data = await state.storage.get_data(chat=partner, user=partner)
     if partner_state == Menu.start_chat.state:
         if partner_data.get("partner") == msg.from_user.id:
-            await msg.bot.send_message(data.get("partner"), msg.text + "\n send /finish to end dialog")
+            await msg.bot.send_message(data.get("partner"), f"\n{msg.text}\n<i>[ /finish to end the dialog ]</i>")
         else:
-            await msg.answer("This driver is chatting with another car driver, please try later",
-                             reply_markup=main_menu_keyboard)
-            # TODO: add extra inline keyboards, with hold and return to menu buttons, if partner is busy
-            await Menu.in_main_menu.set()
+            await msg.answer("This driver is chatting with another car driver, please try later👀")
+            await state.finish()
 
     else:
-        await msg.answer("<b>Your Partner decided to end conversation</b>", reply_markup=main_menu_keyboard)
-        await Menu.in_main_menu.set()
+        await msg.answer("<b>🔚Your Partner decided to end conversation😕</b>")
+        await state.finish()
+
+
+async def finish(msg: Message, state=FSMContext):
+    await msg.delete()
+    await msg.answer('💬The dialogue was finished')
+    await state.finish()
+
+
+# ============= ERRORS =====================
+async def not_found(msg: Message):
+    await msg.answer('🔍The owner was not found😕')
 
 
 def discussion_handlers(dp: Dispatcher):
     dp.register_message_handler(feedback_discussion, state=Menu.feedback)
-    dp.register_inline_handler(search_owner, search_car=True, state=Menu.in_main_menu)
-    dp.register_callback_query_handler(cancel_chatting, text="cancel_chatting", state=Menu.start_chat)
+
+    dp.register_message_handler(search_owner, search_car=True, state=Menu.search_number)
+    dp.register_message_handler(not_found, state=Menu.search_number)
+    dp.register_message_handler(finish, commands="finish", state=[Menu.start_chat])
+
+    dp.register_callback_query_handler(cancel_chatting, text=["cancel_chatting", "back_to_menu"],
+                                       state=[Menu.start_chat, Menu.search_number])
     dp.register_callback_query_handler(start_chatting, car_callback.filter(method="enter_room"),
-                                       state=Menu.in_main_menu)
+                                       state=Menu.search_number)
     dp.register_message_handler(send_message, state=Menu.start_chat)

@@ -5,7 +5,6 @@ from aiogram.dispatcher import FSMContext
 from tgbot.keyboards.inline import settings_keyboard, feedback_keyboard, about_us_keyboard, main_menu_keyboard
 from tgbot.misc.states import Menu
 from tgbot.models.cars import Car
-from tgbot.handlers.user_registration import tools
 
 
 async def settings(call: CallbackQuery):
@@ -53,11 +52,6 @@ async def exit_to_menu(call: CallbackQuery):
     await Menu.in_main_menu.set()
 
 
-async def finish(msg: Message):
-    await msg.delete()
-    await tools(msg)
-
-
 async def close_menu(call: CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer()
@@ -68,7 +62,6 @@ def user_menu_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(settings, text="settings", state=Menu.in_main_menu, in_db=True)
     dp.register_callback_query_handler(about_us, text="about", state=Menu.in_main_menu, in_db=True)
 
-    dp.register_message_handler(finish, commands="finish", state=[Menu.feedback, Menu.start_chat])
     dp.register_callback_query_handler(feedback, text="feedback", state=Menu.in_main_menu, in_db=True)
     dp.register_callback_query_handler(exit_to_menu, text="back_to_menu", state="*")
     dp.register_callback_query_handler(close_menu, state=Menu.in_main_menu, text='hide_menu')

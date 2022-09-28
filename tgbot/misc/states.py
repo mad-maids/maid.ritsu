@@ -14,6 +14,7 @@ class DiscussionRoom(StatesGroup):
 class Menu(StatesGroup):
     in_main_menu = State()
 
+    search_number = State()
     start_chat = State()
     in_discussion = State()
 

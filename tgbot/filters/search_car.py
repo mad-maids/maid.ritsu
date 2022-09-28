@@ -19,9 +19,9 @@ class SearchCar(BoundFilter):
             return True
         if self.search_car is True:
             session_maker: sessionmaker = obj.bot.get('db')
-            query: types.InlineQuery = obj
-            if (x := len(query.query)) > 7 and x < 10 and query.query[:2].isnumeric():
-                cars = await Car.get_all_by_number_like(session_maker, query.query.upper().replace(" ", ""))
+            msg: types.Message = obj
+            if (x := len(msg.text)) > 7 and x < 10 and msg.text[:2].isnumeric():
+                cars = await Car.get_all_by_number_like(session_maker, msg.text.upper().replace(" ", ""))
                 data = dict(cars=cars)
                 return data
             else:
