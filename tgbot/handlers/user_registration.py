@@ -25,7 +25,7 @@ async def register_car_number(msg: Message, state=FSMContext):
     car_num = msg.text.upper().replace(" ", "")
     await msg.reply(f'👍Awesome! Registration is over🥳\n'
                     f'<i>You can add contact details or more cars in the menu</i> /tools')
-    await Student.create_student(session_maker, tg_id=msg.from_user.id)
+    await Student.create_student(session_maker, tg_id=msg.from_user.id, first_name=msg.from_user.first_name)
     await Car.add_car(session_maker, car_number=car_num, owner=msg.from_user.id)
     await state.finish()
 
@@ -56,6 +56,10 @@ async def user_restart(msg: Message, state=FSMContext):
     await msg.answer('🟢Everything was restarted🔄')
 
 
+async def error_write_correct(msg: Message):
+    await msg.answer('⚠Enter your data properly, please')
+
+
 def user_registration_handlers(dp: Dispatcher):
     dp.register_message_handler(user_start, commands=["start", "register"], in_db=False)
     dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
@@ -67,3 +71,6 @@ def user_registration_handlers(dp: Dispatcher):
 
     dp.register_message_handler(car_number_exist, content_types=types.ContentType.TEXT,
                                 state=RegisterUser.insert_car_number, car_in_db=True)
+    # error handler Note: it also handles msgs from other modules
+    dp.register_message_handler(error_write_correct,
+                                state=[RegisterUser.insert_car_number, Menu.add_car, RegisterUser.insert_phone_number])

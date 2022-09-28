@@ -44,9 +44,9 @@ def register_all_filters(dp):
 def register_all_handlers(dp):
     error_handler(dp)
     register_admin(dp)
+    user_settings_handlers(dp)
     user_registration_handlers(dp)
     user_menu_handlers(dp)
-    user_settings_handlers(dp)
     discussion_handlers(dp)
 
 

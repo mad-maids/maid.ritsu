@@ -104,7 +104,7 @@ async def register_phone_number(msg: Message, student: Student):
     await student.update_client(session_maker, updated_student)
     await msg.reply('🥳Your contact is saved!\nYou can delete it whenever you want',
                     reply_markup=ReplyKeyboardRemove())
-    await sleep(2.5)
+    await sleep(3)
     await msg.bot.delete_message(msg.chat.id, msg.message_id + 1)
     await Menu.phone_settings.set()
     await msg.answer("<b>Okay, what do you want to do with your number?</b>",
@@ -115,7 +115,7 @@ async def cancel_phone_registration(msg: Message, state: FSMContext):
     await state.finish()
     await Menu.phone_settings.set()
     await msg.answer("🤨it seems you've changed your mind", reply_markup=ReplyKeyboardRemove())
-    await sleep(1.5)
+    await sleep(2)
     await msg.bot.delete_message(msg.chat.id, msg.message_id+1)
     await msg.answer("<b>Okay, what do you want to do with your number?</b>",
                      reply_markup=main_phone_inline_keyboard)
