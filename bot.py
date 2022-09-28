@@ -52,6 +52,7 @@ def register_all_handlers(dp):
 
 async def set_default_commands(dp):
     await dp.bot.set_my_commands([
+        types.BotCommand("search", "🔎 Search"),
         types.BotCommand("me", "👤 Profile"),
         types.BotCommand("restart", "🔄 Restart the bot"),
         types.BotCommand("help", "❓ Instructions")

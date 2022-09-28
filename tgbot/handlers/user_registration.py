@@ -23,18 +23,18 @@ async def user_start(msg: Message):
 async def register_car_number(msg: Message, state=FSMContext):
     session_maker: sessionmaker = msg.bot.get("db")
     car_num = msg.text.upper().replace(" ", "")
-    await msg.reply(f'👍Awesome! Registration is over🥳\n'
-                    f'<i>You can add contact details or more cars in the menu</i> /tools')
+    await msg.reply(f"🥳𝐑𝐄𝐆𝐈𝐒𝐓𝐑𝐀𝐓𝐈𝐎𝐍 𝐈𝐒 𝐎𝐕𝐄𝐑\n\n"
+                    f"<i>💡Additional cars and contact details\nare available via</i> /me"
+                    f"\n\n🔎Now you can <b>search</b>, using /search")
     await Student.create_student(session_maker, tg_id=msg.from_user.id, first_name=msg.from_user.first_name)
     await Car.add_car(session_maker, car_number=car_num, owner=msg.from_user.id)
     await state.finish()
 
 
 # TODO: add report command
-async def car_number_exist(msg: Message, state=FSMContext):
+async def car_number_exist(msg: Message):
     await msg.answer(
         "<b>Looks like your car number is already taken, please contact admin via /report if necessary</b>")
-    await state.finish()
 
 
 async def tools(msg: Message):
@@ -69,8 +69,8 @@ async def error_write_correct(msg: Message):
 def user_registration_handlers(dp: Dispatcher):
     dp.register_message_handler(user_start, commands=["start", "register"], in_db=False)
     dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
-    dp.register_message_handler(tools, commands='me', in_db=True, is_user_valid=True)
-    dp.register_message_handler(user_not_in_db, commands='me', in_db=False)
+    dp.register_message_handler(tools, commands=['me', 'profile'], in_db=True, is_user_valid=True)
+    dp.register_message_handler(user_not_in_db, commands=['me', 'profile'], in_db=False)
 
     dp.register_message_handler(register_car_number, IsValidCar(True), state=RegisterUser.insert_car_number,
                                 car_in_db=False)
