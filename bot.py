@@ -32,7 +32,7 @@ def register_all_middlewares(dp, config):
 
 
 def register_all_filters(dp):
-    # dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(IsPrivate)
     dp.filters_factory.bind(UserInDB)
     dp.filters_factory.bind(CarInDB)
@@ -43,7 +43,7 @@ def register_all_filters(dp):
 
 def register_all_handlers(dp):
     error_handler(dp)
-    # register_admin(dp)
+    register_admin(dp)
     user_registration_handlers(dp)
     user_menu_handlers(dp)
     user_settings_handlers(dp)
@@ -52,9 +52,9 @@ def register_all_handlers(dp):
 
 async def set_default_commands(dp):
     await dp.bot.set_my_commands([
-        types.BotCommand("restart", "- Restart the bot"),
-        types.BotCommand("help", "- Instructions"),
-        types.BotCommand("finish", "- Finish the discussion")
+        types.BotCommand("tools", "🛠 Settings"),
+        types.BotCommand("restart", "🔄 Restart the bot"),
+        types.BotCommand("help", "❓ Instructions")
     ])
 
 
