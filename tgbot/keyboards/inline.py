@@ -8,12 +8,22 @@ main_car_inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 car_callback = CallbackData("car", "method", "number")
+notify_callback = CallbackData("car", "method", "number", 'tg_id')
 
 
 def found_driver_keyboard(car_number: str):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='🔔Notify them',
                               callback_data=car_callback.new(method="notify", number=car_number))],
+        [InlineKeyboardButton(text="💬Start chatting",
+                              callback_data=car_callback.new(method="enter_room", number=car_number)),
+         InlineKeyboardButton(text="◀Cancel",
+                              callback_data="cancel_chatting")]])
+    return keyboard
+
+
+def found_driver_keyboard_extra(car_number: str):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💬Start chatting",
                               callback_data=car_callback.new(method="enter_room", number=car_number)),
          InlineKeyboardButton(text="◀Cancel",
@@ -76,3 +86,19 @@ delete_number_kb = InlineKeyboardMarkup(inline_keyboard=[
 back_inline_car = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🔙Back', callback_data='to_settings')]
 ])
+
+
+def on_my_way(tg_id, car_number):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='👌On my way',
+                              callback_data=notify_callback.new(method="on_my_way", tg_id=tg_id, number=car_number))],
+        [InlineKeyboardButton(text="💬Start chatting",
+                              callback_data=car_callback.new(method="enter_room", number=car_number))]])
+    return keyboard
+
+
+def on_my_way_extra(car_number):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="💬Start chatting",
+                              callback_data=car_callback.new(method="enter_room", number=car_number))]])
+    return keyboard

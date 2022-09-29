@@ -3,12 +3,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from tgbot.config import Config
-from tgbot.keyboards.inline import found_driver_keyboard, car_callback, back_inline_car
+from tgbot.keyboards.inline import found_driver_keyboard, car_callback, back_inline_car, feedback_keyboard, \
+    found_driver_keyboard_extra, on_my_way, on_my_way_extra, notify_callback
 from tgbot.misc.states import Menu
 from tgbot.models.cars import Car
 from tgbot.models.students import Student
-
-from tgbot.keyboards.inline import feedback_keyboard
 
 
 # ============= FEEDBACK =====================
@@ -53,10 +52,33 @@ async def stop_search(call: CallbackQuery, state=FSMContext):
 
 # ============= CHAT =====================
 
+async def on_my_way_respond(call: CallbackQuery, callback_data: dict):
+    r_car_number = callback_data.get("number")
+    tg_id = callback_data.get("tg_id")
+    print(callback_data.get("car"))
+    respond_text = f"👤The owner is already heading to the car"
+    await call.answer("🔔We have informed the requester")
+    await call.message.edit_reply_markup(on_my_way_extra(r_car_number))
+    await call.message.bot.send_message(tg_id, respond_text)
 
-async def notify_user(call: CallbackQuery):
-    # TODO: add an quick notify button's functionality
-    pass
+
+async def notify_user(call: CallbackQuery, callback_data: dict):
+    car_number = callback_data.get("number")
+
+    session_maker = call.bot.get("db")
+    car_owner = await Car.get_car(session_maker, car_number)
+    requester = await Car.get_car_by_tg(session_maker, call.from_user.id)
+
+    await call.message.edit_reply_markup(found_driver_keyboard_extra(car_number))
+
+    notify_text = f"👋Hello!\n" \
+                  f"❗YOUR CAR <b>PREVENTS</b> ANOTHER CAR\n" \
+                  f"❕FROM LEAVING THE PARKING LOT\n" \
+                  f"\n" \
+                  f"🙏Please come to your car\n"
+    await call.message.bot.send_message(car_owner.owner, notify_text, disable_web_page_preview=True,
+                                        reply_markup=on_my_way(call.from_user.id, requester.car_number))
+    await call.answer('👮‍♂We have notified him🛎', show_alert=True)
 
 
 async def cancel_chatting(call: CallbackQuery, state=FSMContext):
@@ -112,13 +134,17 @@ def discussion_handlers(dp: Dispatcher):
     dp.register_message_handler(feedback_discussion, state=Menu.feedback)
 
     # ========= SEARCH ==========
-    dp.register_message_handler(start_search, commands='search', in_db=True)
+    dp.register_message_handler(start_search, commands='search', is_user_valid=True)
+
     dp.register_message_handler(search_owner, search_car=True, state=Menu.search_number)
     dp.register_callback_query_handler(stop_search, state=Menu.search_number, text='to_settings')
     dp.register_message_handler(finish, commands="finish", state=[Menu.start_chat])
 
-    # ========= CHAT ==========
+    # ========= Notify ==========
     dp.register_callback_query_handler(notify_user, car_callback.filter(method="notify"), state=Menu.search_number)
+    dp.register_callback_query_handler(on_my_way_respond, notify_callback.filter(method='on_my_way'),
+                                       state='*')
+    # ========= CHAT ==========
     dp.register_callback_query_handler(cancel_chatting, text=["cancel_chatting", "back_to_menu"],
                                        state=[Menu.start_chat, Menu.search_number])
     dp.register_callback_query_handler(start_chatting, car_callback.filter(method="enter_room"),
