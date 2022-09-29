@@ -113,7 +113,9 @@ async def send_message(msg: Message, state: FSMContext):
     partner_data = await state.storage.get_data(chat=partner, user=partner)
     if partner_state == Menu.start_chat.state:
         if partner_data.get("partner") == msg.from_user.id:
-            await msg.bot.send_message(data.get("partner"), f"\n{msg.text}\n<i>[ /finish to end the dialog ]</i>")
+            await msg.bot.send_message(data.get("partner"),
+                                       f"👤<b>Interlocutor</b>:\n\n<i>{msg.text}</i>\n"
+                                       f"\n<b>[ /finish to end the dialog ]</b>")
         else:
             await msg.answer("This driver is chatting with another car driver, please try later👀")
             await state.finish()
