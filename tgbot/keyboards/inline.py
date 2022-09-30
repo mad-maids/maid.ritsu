@@ -9,6 +9,7 @@ main_car_inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 
 car_callback = CallbackData("car", "method", "number")
 notify_callback = CallbackData("car", "method", "number", 'tg_id')
+ignore_callback = CallbackData("car", "method", 'tg_id')
 
 
 def found_driver_keyboard(car_number: str):
@@ -93,7 +94,9 @@ def on_my_way(tg_id, car_number):
         [InlineKeyboardButton(text='👌On my way',
                               callback_data=notify_callback.new(method="on_my_way", tg_id=tg_id, number=car_number))],
         [InlineKeyboardButton(text="💬Start chatting",
-                              callback_data=car_callback.new(method="enter_room", number=car_number))]])
+                              callback_data=car_callback.new(method="enter_room", number=car_number)),
+         InlineKeyboardButton(text='🚫Ignore',
+                              callback_data=ignore_callback.new(method="ignore", tg_id=tg_id))]])
     return keyboard
 
 

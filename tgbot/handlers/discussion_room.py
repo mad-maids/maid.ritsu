@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from tgbot.config import Config
 from tgbot.keyboards.inline import found_driver_keyboard, car_callback, back_inline_car, feedback_keyboard, \
-    found_driver_keyboard_extra, on_my_way, on_my_way_extra, notify_callback
+    found_driver_keyboard_extra, on_my_way, on_my_way_extra, notify_callback, ignore_callback
 from tgbot.misc.states import Menu
 from tgbot.models.cars import Car
 from tgbot.models.students import Student
@@ -55,14 +55,14 @@ async def stop_search(call: CallbackQuery, state=FSMContext):
 async def on_my_way_respond(call: CallbackQuery, callback_data: dict):
     r_car_number = callback_data.get("number")
     tg_id = callback_data.get("tg_id")
-    print(callback_data.get("car"))
+
     respond_text = f"👤The owner is already heading to the car"
     await call.answer("🔔We have informed the requester")
     await call.message.edit_reply_markup(on_my_way_extra(r_car_number))
     await call.message.bot.send_message(tg_id, respond_text)
 
 
-async def notify_user(call: CallbackQuery, callback_data: dict):
+async def notify_user(call: CallbackQuery, callback_data: dict, state=FSMContext):
     car_number = callback_data.get("number")
 
     session_maker = call.bot.get("db")
@@ -75,15 +75,40 @@ async def notify_user(call: CallbackQuery, callback_data: dict):
                   f"❗YOUR CAR <b>PREVENTS</b> ANOTHER CAR\n" \
                   f"❕FROM LEAVING THE PARKING LOT\n" \
                   f"\n" \
-                  f"🙏Please come to your car\n"
+                  f"🙏Please come to your car\n" \
+                  f"👤Request from: <code>{requester.car_number.upper()}</code>"
     await call.message.bot.send_message(car_owner.owner, notify_text, disable_web_page_preview=True,
                                         reply_markup=on_my_way(call.from_user.id, requester.car_number))
+
+    await state.storage.set_state(chat=car_owner.owner, user=car_owner.owner, state=Menu.search_number)
+
     await call.answer('👮‍♂We have notified him🛎', show_alert=True)
 
 
-async def cancel_chatting(call: CallbackQuery, state=FSMContext):
-    await call.answer()
+async def ignore_request(call: CallbackQuery, callback_data: dict, state=FSMContext):
+    partner = callback_data.get("tg_id")
+    await call.bot.send_message(partner, "💬The owner chose not to answer you🙁")
+
+    await call.answer('You ignored them🫡')
+    await call.message.delete()
+    await state.finish()
+
+
+# ============= CHAT =====================
+async def cancel_searching(call: CallbackQuery, state=FSMContext):
     await call.message.answer('🔍Search has stopped🛑')
+    await call.answer()
+    await call.message.delete()
+    await state.finish()
+
+
+async def cancel_chatting(call: CallbackQuery, state=FSMContext):
+    data = await state.get_data()
+    partner = data.get("partner")
+    await call.bot.send_message(partner, "💬The dialogue was finished🛑")
+
+    await call.message.answer('💬The dialogue was finished🛑')
+    await call.answer()
     await call.message.delete()
     await state.finish()
 
@@ -126,9 +151,18 @@ async def send_message(msg: Message, state: FSMContext):
 
 
 async def finish(msg: Message, state=FSMContext):
-    await msg.delete()
+    data = await state.get_data()
+    partner = data.get("partner")
+    await msg.bot.send_message(partner, "💬The dialogue was finished🛑")
+
     await msg.answer('💬The dialogue was finished🛑')
+    await msg.delete()
     await state.finish()
+
+
+# ============= ERRORS =====================
+async def error_late_start(call: CallbackQuery):
+    await call.answer('🟡The chat has already started')
 
 
 def discussion_handlers(dp: Dispatcher):
@@ -145,10 +179,19 @@ def discussion_handlers(dp: Dispatcher):
     # ========= Notify ==========
     dp.register_callback_query_handler(notify_user, car_callback.filter(method="notify"), state=Menu.search_number)
     dp.register_callback_query_handler(on_my_way_respond, notify_callback.filter(method='on_my_way'),
-                                       state='*')
+                                       state=Menu.search_number)
+
+    dp.register_callback_query_handler(ignore_request, ignore_callback.filter(method='ignore'),
+                                       state=Menu.search_number)
     # ========= CHAT ==========
-    dp.register_callback_query_handler(cancel_chatting, text=["cancel_chatting", "back_to_menu"],
-                                       state=[Menu.start_chat, Menu.search_number])
+    dp.register_callback_query_handler(cancel_chatting, text=["back_to_menu"],
+                                       state=Menu.start_chat)
+    dp.register_callback_query_handler(cancel_searching, text="cancel_chatting",
+                                       state=Menu.search_number)
+
     dp.register_callback_query_handler(start_chatting, car_callback.filter(method="enter_room"),
                                        state=Menu.search_number)
     dp.register_message_handler(send_message, state=Menu.start_chat)
+    # ======== ERRORS =========
+    dp.register_callback_query_handler(error_late_start, car_callback.filter(method="enter_room"),
+                                       state=Menu.start_chat)
