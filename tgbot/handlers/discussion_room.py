@@ -119,17 +119,20 @@ async def start_chatting(call: CallbackQuery, callback_data: dict, state: FSMCon
     car_number = callback_data.get("number")
     print(f'chat was started {callback_data.get("number")}')
 
+    session_maker = call.bot.get("db")
+    requester = await Car.get_car_by_tg(session_maker, call.from_user.id)
+
     start_text = f"🟢<b>The dialogue has begun</b>💬\n" \
                  f"<i>You can write messages and they will be\nsent to the owner of the car</i>"
 
-    start_text_r = f"🟢<b>Someone started dialogue with you</b>💬\n" \
+    start_text_r = f"🟢<b>Someone (<code>{requester.car_number}</code>) started dialogue with you</b>💬\n" \
                    f"<i>You can write messages and they will be\nsent to the owner of the car</i>"
     # who called
     await call.message.edit_text(start_text)
     await call.message.edit_reply_markup(feedback_keyboard)
 
     # owner
-    car_owner = await Car.get_car(call.bot.get("db"), car_number)
+    car_owner = await Car.get_car(session_maker, car_number)
 
     await call.message.bot.send_message(car_owner.owner, start_text_r, reply_markup=feedback_keyboard)
 
