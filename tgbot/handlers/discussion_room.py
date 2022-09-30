@@ -82,30 +82,32 @@ async def notify_user(call: CallbackQuery, callback_data: dict, state=FSMContext
 
     await state.storage.set_state(chat=car_owner.owner, user=car_owner.owner, state=Menu.search_number)
 
-    await call.answer('👮‍♂We have notified him🛎', show_alert=True)
+    await call.answer('👮‍♂We have notified her/him🛎', show_alert=True)
 
 
 async def ignore_request(call: CallbackQuery, callback_data: dict, state=FSMContext):
     partner = callback_data.get("tg_id")
     await call.bot.send_message(partner, "💬The owner chose not to answer you🙁")
+    await state.storage.finish(chat=partner, user=partner)
 
     await call.answer('You ignored them🫡')
-    await call.message.delete()
     await state.finish()
+    await call.message.delete()
 
 
 # ============= CHAT =====================
 async def cancel_searching(call: CallbackQuery, state=FSMContext):
     await call.message.answer('🔍Search has stopped🛑')
     await call.answer()
-    await call.message.delete()
     await state.finish()
+    await call.message.delete()
 
 
 async def cancel_chatting(call: CallbackQuery, state=FSMContext):
     data = await state.get_data()
     partner = data.get("partner")
     await call.bot.send_message(partner, "💬The dialogue was finished🛑")
+    await state.storage.finish_state(chat=partner, user=partner)
 
     await call.message.answer('💬The dialogue was finished🛑')
     await call.answer()
@@ -117,10 +119,19 @@ async def start_chatting(call: CallbackQuery, callback_data: dict, state: FSMCon
     car_number = callback_data.get("number")
     print(f'chat was started {callback_data.get("number")}')
 
-    await call.message.edit_text(f"🟢<b>The dialogue has begun</b>💬\n"
-                                 f"<i>You can write messages and they will be\nsent to the owner of the car</i>")
+    start_text = f"🟢<b>The dialogue has begun</b>💬\n" \
+                 f"<i>You can write messages and they will be\nsent to the owner of the car</i>"
+
+    start_text_r = f"🟢<b>Someone started dialogue with you</b>💬\n" \
+                   f"<i>You can write messages and they will be\nsent to the owner of the car</i>"
+    # who called
+    await call.message.edit_text(start_text)
     await call.message.edit_reply_markup(feedback_keyboard)
+
+    # owner
     car_owner = await Car.get_car(call.bot.get("db"), car_number)
+
+    await call.message.bot.send_message(car_owner.owner, start_text_r, reply_markup=feedback_keyboard)
 
     await state.storage.set_state(chat=car_owner.owner, user=car_owner.owner, state=Menu.start_chat.state)
     await state.storage.set_data(chat=car_owner.owner, user=car_owner.owner, data=dict(partner=call.from_user.id))
@@ -154,6 +165,7 @@ async def finish(msg: Message, state=FSMContext):
     data = await state.get_data()
     partner = data.get("partner")
     await msg.bot.send_message(partner, "💬The dialogue was finished🛑")
+    await state.storage.finish(chat=partner, user=partner)
 
     await msg.answer('💬The dialogue was finished🛑')
     await msg.delete()
