@@ -19,6 +19,8 @@ from tgbot.handlers.error import error_handler
 from tgbot.handlers.user_menu import user_menu_handlers
 from tgbot.handlers.user_registration import user_registration_handlers
 from tgbot.handlers.user_settings import user_settings_handlers
+from tgbot.handlers.last_callback import register_unhandled_call
+
 from tgbot.middlewares.environment import EnvironmentMiddleware
 from tgbot.middlewares.throttling import ThrottlingMiddleware
 from tgbot.services.database import create_db_session
@@ -48,6 +50,7 @@ def register_all_handlers(dp):
     user_settings_handlers(dp)
     user_registration_handlers(dp)
     user_menu_handlers(dp)
+    register_unhandled_call(dp)
 
 
 async def set_default_commands(dp):

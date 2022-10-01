@@ -26,7 +26,6 @@ async def start_search(msg: Message):
     await Menu.search_number.set()
     await msg.answer('👮‍♂Alright, please <b>send the number of the car</b> that prevents you from leaving the '
                      'parking lot', reply_markup=back_inline_car)
-    # TODO: add a timer to auto-delete it
 
 
 async def search_owner(msg: Message, cars: [Car]):
