@@ -43,12 +43,13 @@ async def insert_car_number(msg: Message):
     await msg.reply("\n".join([
         "<b>🟢Nice! Your new number was recorded!</b>"
     ]), reply_markup=main_car_inline_keyboard)
-
+    # TODO: handle cars with status 0
     await Car.add_car(session_maker, car_number=car_num, owner=msg.from_user.id)
     await Menu.car_settings.set()
 
 
-async def car_number_exist(msg: Message, ):
+async def car_number_exist(msg: Message):
+    await Menu.in_main_menu.set()
     await msg.answer(
         "<b>Looks like your car number is already taken, please contact admin via /report if necessary</b>",
         reply_markup=main_menu_keyboard)
