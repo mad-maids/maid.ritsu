@@ -19,7 +19,7 @@ async def settings(call: CallbackQuery):
 async def feedback(call: CallbackQuery):
     await call.message.delete()
     await call.message.answer("".join(["<b>Now, everything you write here will be forwarded ",
-                                       "to admins. Then, they can contact you directly or via me if needed</b>"
+                                       "to admins. Then, they can contact you directly or via bot if needed</b>"
                                        ]),
                               reply_markup=feedback_keyboard
                               )
@@ -47,7 +47,7 @@ async def exit_to_menu(call: CallbackQuery):
     for r in cars:
         car.append(r.car_number)
     await call.message.answer(f"👤𝐍𝐚𝐦𝐞: <b>{call.from_user.first_name}</b>\n"
-                              f"🚙𝐂𝐚𝐫(𝐬): <code>{' '.join(car)}</code>",
+                              f"🚙𝐂𝐚𝐫(𝐬): <code>{'</code><code> '.join(car)}</code>",
                               reply_markup=main_menu_keyboard)
     await Menu.in_main_menu.set()
 

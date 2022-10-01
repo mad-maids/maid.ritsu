@@ -13,6 +13,7 @@ from tgbot.models.students import Student
 # ============= FEEDBACK =====================
 async def feedback_discussion(msg: Message):
     config: Config = msg.bot.get("config")
+    await msg.reply('Your message has been sent👍')
     await msg.bot.send_message(
         config.tg_bot.admins_group[0],
         "".join([f"<b>From user: <a href='tg://user?id={msg.from_user.id}'>{msg.from_user.first_name}</a></b>\n\n",
@@ -107,7 +108,7 @@ async def cancel_chatting(call: CallbackQuery, state=FSMContext):
     data = await state.get_data()
     partner = data.get("partner")
     await call.bot.send_message(partner, "💬The dialogue was finished🛑")
-    await state.storage.finish_state(chat=partner, user=partner)
+    await state.storage.finish(chat=partner, user=partner)
 
     await call.message.answer('💬The dialogue was finished🛑')
     await call.answer()
@@ -180,6 +181,10 @@ async def error_late_start(call: CallbackQuery):
     await call.answer('🟡The chat has already started')
 
 
+async def error_late_finish(call: CallbackQuery):
+    await call.answer('🟡The chat has already finished or you restarted the bot')
+
+
 def discussion_handlers(dp: Dispatcher):
     # ========= FEEDBACK ==========
     dp.register_message_handler(feedback_discussion, state=Menu.feedback)
@@ -189,7 +194,7 @@ def discussion_handlers(dp: Dispatcher):
 
     dp.register_message_handler(search_owner, search_car=True, state=Menu.search_number)
     dp.register_callback_query_handler(stop_search, state=Menu.search_number, text='to_settings')
-    dp.register_message_handler(finish, commands="finish", state=[Menu.start_chat])
+    dp.register_message_handler(finish, commands="finish", state=Menu.start_chat)
 
     # ========= Notify ==========
     dp.register_callback_query_handler(notify_user, car_callback.filter(method="notify"), state=Menu.search_number)
@@ -199,7 +204,7 @@ def discussion_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(ignore_request, ignore_callback.filter(method='ignore'),
                                        state=Menu.search_number)
     # ========= CHAT ==========
-    dp.register_callback_query_handler(cancel_chatting, text=["back_to_menu"],
+    dp.register_callback_query_handler(cancel_chatting, text="back_to_menu",
                                        state=Menu.start_chat)
     dp.register_callback_query_handler(cancel_searching, text="cancel_chatting",
                                        state=Menu.search_number)
@@ -210,3 +215,4 @@ def discussion_handlers(dp: Dispatcher):
     # ======== ERRORS =========
     dp.register_callback_query_handler(error_late_start, car_callback.filter(method="enter_room"),
                                        state=Menu.start_chat)
+    dp.register_callback_query_handler(error_late_finish, text="back_to_menu")
