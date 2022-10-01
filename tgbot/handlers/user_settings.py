@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from asyncio import sleep
 
 from tgbot.keyboards.inline import main_car_inline_keyboard, separate_car_inline_keyboard, car_callback, \
-    main_menu_keyboard, confirm_delete_kb, main_phone_inline_keyboard, delete_number_kb, back_inline_car
+ confirm_delete_kb, main_phone_inline_keyboard, delete_number_kb, back_inline_car
 from tgbot.keyboards.reply import give_contact_kb
 
 from tgbot.misc.states import Menu, RegisterUser
@@ -49,10 +49,10 @@ async def insert_car_number(msg: Message):
 
 
 async def car_number_exist(msg: Message):
-    await Menu.in_main_menu.set()
+    await Menu.car_settings.set()
     await msg.answer(
         "<b>Looks like your car number is already taken, please contact admin via /report if necessary</b>",
-        reply_markup=main_menu_keyboard)
+        reply_markup=main_car_inline_keyboard)
 
 
 async def delete_the_car(call: CallbackQuery, callback_data: dict):
