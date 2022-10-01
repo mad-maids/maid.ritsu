@@ -43,7 +43,7 @@ async def tools(msg: Message):
     for r in cars:
         car.append(r.car_number)
     await msg.answer(f"👤𝐍𝐚𝐦𝐞: <b>{msg.from_user.first_name}</b>\n"
-                     f"🚙𝐂𝐚𝐫(𝐬): <code>{' '.join(car)}</code>",
+                     f"🚙𝐂𝐚𝐫(𝐬): <code>{'</code> <code>'.join(car)}</code>",
                      reply_markup=main_menu_keyboard)
     await Menu.in_main_menu.set()
 
