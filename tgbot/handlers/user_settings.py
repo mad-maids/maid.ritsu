@@ -16,7 +16,7 @@ from tgbot.handlers.user_menu import settings
 
 # =========== CARS ==================
 async def check_cars(call: CallbackQuery):
-    cars = await Car.get_all_by_tg(call.bot.get("db"), call.from_user.id)
+    cars = await Car.get_all_active_by_tg(call.bot.get("db"), call.from_user.id)
     for i in cars:
         await call.message.answer(f"🚗Your car is <code>{i.car_number}</code>",
                                   reply_markup=separate_car_inline_keyboard(i.car_number))
@@ -57,10 +57,12 @@ async def car_number_exist(msg: Message):
 
 async def delete_the_car(call: CallbackQuery, callback_data: dict):
     car_number = callback_data.get("number")
-    if await Car.get_car(call.bot.get("db"), car_number) is None:
+    if await Car.get_active_car(call.bot.get("db"), car_number) is None:
         await call.answer("🔴You don't own this car!", show_alert=True)
     else:
-        await Car.delete_car(call.bot.get("db"), car_number)
+        new_car = Car()
+        await new_car.update_status(call.bot.get("db"), car_number=car_number, owner=call.from_user.id,
+                                    status=dict(status=0))
         await call.answer('🟢Car was successfully deleted🗑', show_alert=True)
         await call.message.delete()
     await Menu.car_settings.set()
@@ -137,7 +139,7 @@ async def confirm_delete(call: CallbackQuery):
     await call.answer()
 
 
-async def delete_all(call: CallbackQuery, state=FSMContext):
+async def delete_all(call: CallbackQuery, state: FSMContext):
     session_maker: sessionmaker = call.bot.get("db")
     await Car.delete_all_by_tg(session_maker, tg_id=call.from_user.id)
     await Student.remove_number(session_maker, tg_id=call.from_user.id)

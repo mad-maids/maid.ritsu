@@ -42,7 +42,7 @@ async def about_us(call: CallbackQuery):
 
 async def exit_to_menu(call: CallbackQuery):
     await call.message.delete()
-    cars = await Car.get_all_by_tg(call.bot.get("db"), call.from_user.id)
+    cars = await Car.get_all_active_by_tg(call.bot.get("db"), call.from_user.id)
     car = []
     for r in cars:
         car.append(r.car_number)

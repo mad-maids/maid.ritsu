@@ -34,10 +34,10 @@ class ThrottlingMiddleware(BaseMiddleware):
                                throttled: Throttled, dispatcher: Dispatcher, key: str):
         msg = target.message if isinstance(target, types.CallbackQuery) else target
         delta = throttled.rate - throttled.delta
-        if throttled.exceeded_count == 2:
+        if throttled.exceeded_count == 4:
             await msg.reply('Too many messages!')
             return
-        elif throttled.exceeded_count == 3:
+        elif throttled.exceeded_count == 6:
             await msg.reply(f'I am ignoring you from now -_-')
             return
         await asyncio.sleep(delta)

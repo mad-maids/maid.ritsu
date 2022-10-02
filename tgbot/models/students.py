@@ -32,6 +32,16 @@ class Student(Base):
             await db_session.commit()
             return student
 
+    @classmethod
+    async def get_any_student(cls, session_maker: sessionmaker,
+                              tg_id: int) -> 'Student':
+        async with session_maker() as db_session:
+            sql = select(cls).where(cls.tg_id == tg_id)
+            request = await db_session.execute(sql)
+            student: cls = request.scalar()
+            await db_session.commit()
+            return student
+
     async def update_client(self, session_maker: sessionmaker, updated_fields: dict) -> 'Student':
         async with session_maker() as db_session:
             sql = update(Student).where(Student.tg_id == self.tg_id).values(**updated_fields)

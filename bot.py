@@ -45,10 +45,10 @@ def register_all_filters(dp):
 
 def register_all_handlers(dp):
     error_handler(dp)
-    register_admin(dp)
     discussion_handlers(dp)
     user_settings_handlers(dp)
     user_registration_handlers(dp)
+    register_admin(dp)
     user_menu_handlers(dp)
     register_unhandled_call(dp)
 

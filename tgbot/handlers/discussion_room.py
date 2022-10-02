@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from tgbot.config import Config
+from tgbot.keyboards.admin_kb import admin_feedback_keyboard
 from tgbot.keyboards.inline import found_driver_keyboard, car_callback, back_inline_car, feedback_keyboard, \
     found_driver_keyboard_extra, on_my_way, on_my_way_extra, notify_callback, ignore_callback
 from tgbot.misc.states import Menu
@@ -15,10 +16,10 @@ async def feedback_discussion(msg: Message):
     config: Config = msg.bot.get("config")
     await msg.reply('Your message has been sent👍')
     await msg.bot.send_message(
-        config.tg_bot.admins_group[0],
+        config.tg_bot.admins_group,
         "".join([f"<b>From user: <a href='tg://user?id={msg.from_user.id}'>{msg.from_user.first_name}</a></b>\n\n",
                  f"<i>{msg.text}</i>"],
-                ))
+                ), reply_markup=admin_feedback_keyboard(msg.from_user.id))
 
 
 # ============= SEARCH =====================
@@ -62,11 +63,11 @@ async def on_my_way_respond(call: CallbackQuery, callback_data: dict):
     await call.message.bot.send_message(tg_id, respond_text)
 
 
-async def notify_user(call: CallbackQuery, callback_data: dict, state=FSMContext):
+async def notify_user(call: CallbackQuery, callback_data: dict, state: FSMContext):
     car_number = callback_data.get("number")
 
     session_maker = call.bot.get("db")
-    car_owner = await Car.get_car(session_maker, car_number)
+    car_owner = await Car.get_active_car(session_maker, car_number)
     requester = await Car.get_car_by_tg(session_maker, call.from_user.id)
 
     await call.message.edit_reply_markup(found_driver_keyboard_extra(car_number))
@@ -96,14 +97,14 @@ async def ignore_request(call: CallbackQuery, callback_data: dict, state=FSMCont
 
 
 # ============= CHAT =====================
-async def cancel_searching(call: CallbackQuery, state=FSMContext):
+async def cancel_searching(call: CallbackQuery, state: FSMContext):
     await call.message.answer('🔍Search has stopped🛑')
     await call.answer()
     await state.finish()
     await call.message.delete()
 
 
-async def cancel_chatting(call: CallbackQuery, state=FSMContext):
+async def cancel_chatting(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     partner = data.get("partner")
     await call.bot.send_message(partner, "💬The dialogue was finished🛑")
@@ -132,7 +133,7 @@ async def start_chatting(call: CallbackQuery, callback_data: dict, state: FSMCon
     await call.message.edit_reply_markup(feedback_keyboard)
 
     # owner
-    car_owner = await Car.get_car(session_maker, car_number)
+    car_owner = await Car.get_active_car(session_maker, car_number)
 
     await call.message.bot.send_message(car_owner.owner, start_text_r, reply_markup=feedback_keyboard)
 
@@ -164,7 +165,7 @@ async def send_message(msg: Message, state: FSMContext):
         await state.finish()
 
 
-async def finish(msg: Message, state=FSMContext):
+async def finish(msg: Message, state: FSMContext):
     data = await state.get_data()
     partner = data.get("partner")
     await msg.bot.send_message(partner, "💬The dialogue was finished🛑")

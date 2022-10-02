@@ -38,7 +38,7 @@ async def car_number_exist(msg: Message):
 
 
 async def tools(msg: Message):
-    cars = await Car.get_all_by_tg(msg.bot.get("db"), msg.from_user.id)
+    cars = await Car.get_all_active_by_tg(msg.bot.get("db"), msg.from_user.id)
     car = []
     for r in cars:
         car.append(r.car_number)
@@ -62,10 +62,10 @@ async def error_write_correct(msg: Message):
 
 
 def user_registration_handlers(dp: Dispatcher):
-    dp.register_message_handler(user_start, commands=["start", "register"], in_db=False, is_user_valid=True)
-    dp.register_message_handler(user_restart, commands=["start", "restart"], state="*")
-    dp.register_message_handler(tools, commands=['me', 'profile'], in_db=True, is_user_valid=True)
-    dp.register_message_handler(user_not_in_db, commands=['me', 'profile'], in_db=False, is_user_valid=True)
+    dp.register_message_handler(user_start, commands=["start", "register"], in_db=False)
+    dp.register_message_handler(user_restart, commands=["start", "restart"], state="*", in_db=True)
+    dp.register_message_handler(tools, commands=['me', 'profile'], in_db=True)
+    dp.register_message_handler(user_not_in_db, commands=['me', 'profile'], in_db=False)
 
     dp.register_message_handler(register_car_number, IsValidCar(True), state=RegisterUser.insert_car_number,
                                 car_in_db=False)

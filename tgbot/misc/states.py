@@ -1,6 +1,12 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
+class AdminStates(StatesGroup):
+    in_admin_panel = State()
+    search_car = State()
+    search_driver = State()
+
+
 class RegisterUser(StatesGroup):
     insert_car_number = State()
     insert_phone_number = State()
