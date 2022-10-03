@@ -86,7 +86,7 @@ async def notify_user(call: CallbackQuery, callback_data: dict, state: FSMContex
     await call.answer('👮‍♂We have notified her/him🛎', show_alert=True)
 
 
-async def ignore_request(call: CallbackQuery, callback_data: dict, state=FSMContext):
+async def ignore_request(call: CallbackQuery, callback_data: dict, state: FSMContext):
     partner = callback_data.get("tg_id")
     await call.bot.send_message(partner, "💬The owner chose not to answer you🙁")
     await state.storage.finish(chat=partner, user=partner)
@@ -121,7 +121,7 @@ async def start_chatting(call: CallbackQuery, callback_data: dict, state: FSMCon
     print(f'chat was started {callback_data.get("number")}')
 
     session_maker = call.bot.get("db")
-    requester = await Car.get_car_by_tg(session_maker, call.from_user.id)
+    requester: Car = await Car.get_car_by_tg(session_maker, call.from_user.id)
 
     start_text = f"🟢<b>The dialogue has begun</b>💬\n" \
                  f"<i>You can write messages and they will be\nsent to the owner of the car</i>"
