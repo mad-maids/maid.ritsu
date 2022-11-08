@@ -1,7 +1,7 @@
 <h2 align="center">WIUT Parking Bot🚙</h2>
 <h3 align="center"><i>"Let's find out who blocked your car"</i></h3>
 
-**This website was built with [aiogram](https://github.com/aiogram/aiogram). This bot has
+**This bot was built with [aiogram](https://github.com/aiogram/aiogram). This bot has
 flexible architecture, so you can enhance easily**
 
 ## Documentations
@@ -16,17 +16,6 @@ are:
 - [Azizbek (Creator, Maintainer)](https://github.com/Azizbek-B)
 - [UwUssimo (Core Contributor)](https://github.com/uwussimo)
 
-## Hosting
-
-It's highly recommended to run the bot using Docker. Use the following command to
-launch your own instance: 
-
-````shell
-docker run -d -t -i \
-  -e PARKING_TOKEN='<TOKEN>' \
-  --volume /opt/ritsu/data:/app/data \
-  --name ritsu ghcr.io/mad-maids/maid-ritsu:master
-````
 
 ## Hosting
 
